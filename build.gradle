@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'main.java.Client'
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+    jcenter()
+}
+
+run {
+    standardInput = System.in
+}
