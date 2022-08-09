@@ -40,7 +40,6 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
         tableModel = new MyTableModel();
 
         JTable table = new JTable(tableModel);
-        //table.setPreferredScrollableViewportSize(new Dimension(500, 70));
         table.setFillsViewportHeight(true);
 
         //Create the scroll pane and add the table to it.
@@ -77,6 +76,32 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                 rowData.add("");
             
             ++mNumRows;
+        }
+
+        /*
+         * JTable uses this method to determine the default renderer/
+         * editor for each cell.  If we didn't implement this method,
+         * then the last column would contain text ("true"/"false"),
+         * rather than a check box.
+         */
+        public Class getColumnClass(int c) {
+            return getValueAt(0, c).getClass();
+        }
+
+        public int getColumnCount() {
+            return columnNames.size();
+        }
+
+        public int getRowCount() {
+            return mNumRows;
+        }
+
+        public String getColumnName(int col) {
+            return columnNames.get(col);
+        }
+
+        public Object getValueAt(int row, int col) {
+            return rowData.get(row * columnNames.size() + col);
         }
         
         public void load(String name)  {
@@ -121,43 +146,33 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
             mPreparedString = getPreparedInsertString();
         }
 
-        public int getColumnCount() {
-            return columnNames.size();
-        }
-
-        public int getRowCount() {
-            return mNumRows;
-        }
-
-        public String getColumnName(int col) {
-            return columnNames.get(col);
-        }
-
-        public Object getValueAt(int row, int col) {
-            return rowData.get(row * columnNames.size() + col);
-        }
-
         /*
-         * JTable uses this method to determine the default renderer/
-         * editor for each cell.  If we didn't implement this method,
-         * then the last column would contain text ("true"/"false"),
-         * rather than a check box.
-         */
-        public Class getColumnClass(int c) {
-            return getValueAt(0, c).getClass();
-        }
-
-        /*
-         * Don't need to implement this method unless your table's
-         * editable.
+         * Make every cell editable
          */
         public boolean isCellEditable(int row, int col) {
-            return true;
+            if(row == mNumRows - 1) return true;
+            
+            int border = 1;
+            switch(tableName) {
+                case "belongs_to":
+                case "sales_item":
+                case "return_item":
+                    border = 2;
+                    
+            }
+            
+            if(col >= border) return true;
+            
+            JOptionPane.showMessageDialog(DisplayTablePanel.this,
+                "Can't edit Primary Key column", "Edit PK Error",
+                JOptionPane.ERROR_MESSAGE);
+            
+            return false;
         }
 
         /*
-         * Don't need to implement this method unless your table's
-         * data can change.
+         * Updates cell at (pRow, pCol) to pValue, if pValue is valid
+         *
          */
         public void setValueAt(Object pValue, int pRow, int pCol) {
             // Remove leading and trailing spaces from user's string
@@ -172,20 +187,27 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
             }
             
             // Validate cell
-            if(!lCellString.equals("") && !isCellValid(pRow, pCol, lCellString)) {
+            if(!lCellString.equals("") &&
+               !isCellValid(pRow, pCol, lCellString)) {
                 JOptionPane.showMessageDialog(DisplayTablePanel.this,
                 "This cell must be of Type: " + columnTypeNames.get(pCol) +
                     mErrorMsg, "Wrong Type", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
+            String lOldValue = getValueAt(pRow, pCol).toString();
             rowData.set(pRow * columnNames.size() + pCol, lCellString);
             
             // Inserting at last row
-            if(pRow == mNumRows - 1 && isLastRowFull()) {
-                insertTuple();
-                fireTableStructureChanged();
-            } else fireTableCellUpdated(pRow, pCol);
+            if(pRow == mNumRows - 1) {
+                if(isLastRowFull()) {
+                    insertTuple();
+                    fireTableStructureChanged();
+                }
+            } else if(!lCellString.equals(lOldValue)) {
+                updateTuple(pRow, pCol, lCellString);
+                fireTableCellUpdated(pRow, pCol);
+            }
         }
         
         private String getPreparedInsertString() {            
@@ -204,12 +226,12 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
             return lPreparedString.toString();
         }
         
-        private boolean isCellValid(int pRow, int pCol, String pCellValue) {
+        private boolean isCellValid(int pRow, int pCol, String pCellString) {
             mErrorMsg = "";
             switch(columnTypes.get(pCol)) {
                 case Types.INTEGER:
                     try {
-                        if(Integer.parseInt(pCellValue) < 0) {
+                        if(Integer.parseInt(pCellString) < 0) {
                             mErrorMsg = "\nCell cannot be negative!";
                             throw new NumberFormatException();
                         }
@@ -220,7 +242,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                 
                 case Types.DECIMAL:
                     try {
-                        if((new BigDecimal(pCellValue)).doubleValue() <= 0) {
+                        if((new BigDecimal(pCellString)).doubleValue() <= 0) {
                             mErrorMsg = "\nCell must be positive!";
                             throw new NumberFormatException();
                         }
@@ -235,7 +257,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                         
                 case Types.TIMESTAMP:
                     try {
-                        Timestamp lDateTime = Timestamp.valueOf(pCellValue);
+                        Timestamp lDateTime = Timestamp.valueOf(pCellString);
                     } catch(IllegalArgumentException nfe) {
                         mErrorMsg = "Format: yyyy-[m]m-[d]d hh:mm:ss[.f...]"; 
                         return false;
@@ -251,17 +273,8 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
             return true;
         }
         
-        private boolean isLastRowFull() {            
-            for(int col = 0; col < columnNames.size(); ++col) {
-                if(getValueAt(mNumRows - 1, col).equals(""))
-                    return false;
-            }
-            
-            return true;
-        }
-        
         private void insertTuple() {            
-            try {                
+            try {
                 PreparedStatement lPs =
                     mLoginPanel.getConnection().prepareStatement(
                         mPreparedString);                    
@@ -314,6 +327,104 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                 se.getMessage(), "SQL Error",
                 JOptionPane.ERROR_MESSAGE);
             } 
+        }
+        
+        private boolean isLastRowFull() {            
+            for(int col = 0; col < columnNames.size(); ++col) {
+                if(getValueAt(mNumRows - 1, col).equals(""))
+                    return false;
+            }
+            
+            return true;
+        }
+        
+        private void updateTuple(int pRow, int pCol, String pNewString) {
+            try {                   
+                String lUpdateStr = String.format(
+                    "UPDATE %s SET %s=? WHERE %s", tableName,
+                    columnNames.get(pCol), whereClause(pRow));
+                PreparedStatement lPs =
+                    mLoginPanel.getConnection().prepareStatement(lUpdateStr);              
+                        
+                switch(columnTypes.get(pCol)) {
+                    case Types.INTEGER:
+                        lPs.setInt(1, Integer.parseInt(pNewString));
+                    break;
+                    
+                    case Types.DECIMAL:
+                        lPs.setBigDecimal(1, (
+                            new BigDecimal(pNewString).setScale(2)));
+                    break;
+                    
+                    case Types.VARCHAR:
+                    case Types.CHAR:
+                        lPs.setString(1, pNewString);
+                    break;
+                    
+                    case Types.TIMESTAMP:
+                        lPs.setTimestamp(1,
+                            Timestamp.valueOf(pNewString));
+                    break;
+            
+                    default:
+                        // Code should not reach here because we have
+                        // handled all types in our database
+                        System.out.println("TODO: " +
+                            columnTypeNames.get(pCol));
+                        return;
+                }
+                
+                if (lPs.executeUpdate() > 0) {                    
+                    JOptionPane.showMessageDialog(DisplayTablePanel.this,
+                        "Tuple updated!", "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
+                
+                mLoginPanel.getConnection().commit();
+                lPs.close();
+                
+            } catch(java.sql.SQLException se) {                              
+                JOptionPane.showMessageDialog(DisplayTablePanel.this,
+                se.getMessage(), "SQL Error",
+               JOptionPane.ERROR_MESSAGE);
+            }
+        }        
+        
+        public String whereClause(int pRow) {
+            switch(tableName) {
+                case "belongs_to":
+                    return String.format("StoreID=%s AND ProductID=%s",
+                            getValueAt(pRow, 0), getValueAt(pRow, 1));
+                               
+                case "customer":
+                    return String.format("RewardsID=%s", getValueAt(pRow, 0));
+                               
+                case "cust_sales":
+                    return String.format("InvoiceID='%s'", getValueAt(pRow, 0));
+                               
+                case "manufacturer":
+                    return String.format("MName='%s'", getValueAt(pRow, 0));
+                               
+                case "product":
+                    return String.format("ProductID=%s", getValueAt(pRow, 0));
+                               
+                case "return_item":
+                    return String.format("InvoiceID='%s' AND ProductID=%s",
+                        getValueAt(pRow, 0), getValueAt(pRow, 1));
+                               
+                case "sales":
+                    return String.format(
+                        "InvoiceID='%s'", getValueAt(pRow, 0));
+                               
+                case "sales_item":
+                    return String.format("InvoiceID='%s' AND ProductID=%s",
+                        getValueAt(pRow, 0), getValueAt(pRow, 1));
+                               
+                case "store":
+                    return String.format("StoreID=%s", getValueAt(pRow, 0));
+            }
+            
+            return "";
         }
     }
 }
