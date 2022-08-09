@@ -19,17 +19,18 @@ import java.sql.Types;
 
 import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
 
 /** 
  * TODO
@@ -48,6 +49,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
 
         table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);        
 
         //Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(table);
@@ -259,11 +261,11 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
             if(pRow == mNumRows - 1) {
                 if(isLastRowFull()) {
                     insertTuple();
-                    load(tableName);
+                    update(tableName);
                 }
             } else if(!lCellString.equals(lOldValue)) {
                 updateTuple(pRow, pCol, lCellString);
-                    load(tableName);
+                    update(tableName);
             }
         }
         
