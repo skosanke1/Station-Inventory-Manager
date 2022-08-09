@@ -8,10 +8,13 @@ apply plugin: 'application'
 mainClassName = 'proj4.group7.DatabaseDemo'
 compileJava.options.encoding = 'UTF-8'
 
-repositories {
+repositories {    
     jcenter()
+}
+
+dependencies {
+    implementation files('lib/mysql_connector.jar')
 }
 
 run {
     standardInput = System.in
-}
