@@ -98,6 +98,30 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            
+            try {                   
+                String lDeleteRowStr = String.format(
+                    "DELETE FROM %s WHERE %s",
+                    tableName, whereClause(selectedRow));
+                Statement lStmt =
+                    mLoginPanel.getConnection().createStatement();
+                
+                if (lStmt.executeUpdate(lDeleteRowStr) > 0) {                    
+                    JOptionPane.showMessageDialog(DisplayTablePanel.this,
+                        "Tuple deleted!", "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
+                
+                mLoginPanel.getConnection().commit();
+                lStmt.close();
+                
+            } catch(java.sql.SQLException se) {                              
+                JOptionPane.showMessageDialog(DisplayTablePanel.this,
+                se.getMessage(), "SQL Error",
+               JOptionPane.ERROR_MESSAGE);
+            }
+            
+            update(tableName);
         }
         
         private void addExtraRow() {
@@ -422,7 +446,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                 se.getMessage(), "SQL Error",
                JOptionPane.ERROR_MESSAGE);
             }
-        }        
+        }
         
         public String whereClause(int pRow) {
             switch(tableName) {
