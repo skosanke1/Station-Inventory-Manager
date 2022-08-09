@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import java.sql.Statement;
 import java.sql.ResultSet;
@@ -215,11 +216,11 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
             if(pRow == mNumRows - 1) {
                 if(isLastRowFull()) {
                     insertTuple();
-                    fireTableStructureChanged();
+                    load(tableName);
                 }
             } else if(!lCellString.equals(lOldValue)) {
                 updateTuple(pRow, pCol, lCellString);
-                fireTableCellUpdated(pRow, pCol);
+                    load(tableName);
             }
         }
         
@@ -303,7 +304,8 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                         
                         case Types.DECIMAL:
                             lPs.setBigDecimal(col + 1, (
-                                new BigDecimal(lCellString).setScale(2)));
+                                new BigDecimal(lCellString).setScale(2,
+                                    RoundingMode.FLOOR)));
                         break;
                         
                         case Types.VARCHAR:
@@ -337,9 +339,8 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                 
             } catch(java.sql.SQLException se) {                              
                 JOptionPane.showMessageDialog(DisplayTablePanel.this,
-                se.getMessage(), "SQL Error",
-                JOptionPane.ERROR_MESSAGE);
-            } 
+                    se.getMessage(), "SQL Error",JOptionPane.ERROR_MESSAGE);
+            }
         }
         
         private boolean isLastRowFull() {            
@@ -366,7 +367,8 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                     
                     case Types.DECIMAL:
                         lPs.setBigDecimal(1, (
-                            new BigDecimal(pNewString).setScale(2)));
+                            new BigDecimal(pNewString).setScale(2,
+                                RoundingMode.FLOOR)));
                     break;
                     
                     case Types.VARCHAR:
