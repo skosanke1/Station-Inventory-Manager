@@ -231,8 +231,8 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
             switch(columnTypes.get(pCol)) {
                 case Types.INTEGER:
                     try {
-                        if(Integer.parseInt(pCellString) < 0) {
-                            mErrorMsg = "\nCell cannot be negative!";
+                        if(Integer.parseInt(pCellString) <= 0) {
+                            mErrorMsg = "\nCell must be positive!";
                             throw new NumberFormatException();
                         }
                     } catch(NumberFormatException nfe) {
