@@ -38,6 +38,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
     private String tableName;
     private MyTableModel tableModel;
     private LoginPanel mLoginPanel;
+    private JTable table;
 
     public DisplayTablePanel(LoginPanel mLoginPanel) {
        // super(new GridLayout(0, 1));
@@ -45,7 +46,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
         this.mLoginPanel = mLoginPanel;
         tableModel = new MyTableModel();
 
-        JTable table = new JTable(tableModel);
+        table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
 
         //Create the scroll pane and add the table to it.
@@ -62,7 +63,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
         tableModel.fireTableStructureChanged();
     }
 
-    class MyTableModel extends AbstractTableModel {        
+    class MyTableModel extends AbstractTableModel implements ActionListener {        
         private ArrayList<Object> rowData;
         private ArrayList<String> columnNames;
         private ArrayList<Integer> columnTypes;
@@ -75,10 +76,28 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
         
         public MyTableModel() {
             deleteButton = new JButton("Deleted Selected Row");
+            deleteButton.addActionListener(this);
             rowData = new ArrayList<>();
             columnNames = new ArrayList<>();
             columnTypes = new ArrayList<>();
             columnTypeNames = new ArrayList<>();
+        }
+        
+        public void actionPerformed(ActionEvent event) {
+            int selectedRow = table.getSelectedRow();
+            if(selectedRow == -1) {
+                JOptionPane.showMessageDialog(DisplayTablePanel.this,
+                    "You must select a row!", "No row selected",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }            
+            
+            if(selectedRow == mNumRows - 1) {
+                JOptionPane.showMessageDialog(DisplayTablePanel.this,
+                    "Can't delete an empty row", "Empty row error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         }
         
         private void addExtraRow() {
