@@ -13,6 +13,7 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -107,7 +108,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                 if (rs != null) rs.close();
                 stmt.close();
                 
-                // This is used to insert
+                // Add empty row for possible row insertion
                 /***************************************************/
                 addExtraRow();
                 /***************************************************/
@@ -231,8 +232,19 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                 case Types.VARCHAR:
                 case Types.CHAR:
                 break;
+                        
+                case Types.TIMESTAMP:
+                    try {
+                        Timestamp lDateTime = Timestamp.valueOf(pCellValue);
+                    } catch(IllegalArgumentException nfe) {
+                        mErrorMsg = "Format: yyyy-[m]m-[d]d hh:mm:ss[.f...]"; 
+                        return false;
+                    }
+                break;
                 
                 default:
+                    // Code should not reach here because we have
+                    // handled all types in our database
                     System.out.println("TODO: " + columnTypeNames.get(pCol));
             }
             
@@ -272,8 +284,15 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
                         case Types.CHAR:
                             lPs.setString(col + 1, lCellString);
                         break;
+                        
+                        case Types.TIMESTAMP:
+                            lPs.setTimestamp(col + 1,
+                                Timestamp.valueOf(lCellString));
+                        break;
                 
                         default:
+                            // Code should not reach here because we have
+                            // handled all types in our database
                             System.out.println("TODOx: " +
                                 columnTypeNames.get(col));
                             return;
