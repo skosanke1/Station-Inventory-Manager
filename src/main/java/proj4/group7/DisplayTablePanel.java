@@ -25,6 +25,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+
 /** 
  * TODO
  */
@@ -34,7 +39,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
     private LoginPanel mLoginPanel;
 
     public DisplayTablePanel(LoginPanel mLoginPanel) {
-        super(new GridLayout(1, 0));
+       // super(new GridLayout(0, 1));
     
         this.mLoginPanel = mLoginPanel;
         tableModel = new MyTableModel();
@@ -47,6 +52,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
 
         //Add the scroll pane to this panel.
         add(scrollPane);
+        add(tableModel.getButton());
     }
     
     public void update(String name) {
@@ -64,7 +70,10 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
         private String mPreparedString;
         private String mErrorMsg;
         
-        public MyTableModel() {            
+        private JButton deleteButton;
+        
+        public MyTableModel() {
+            deleteButton = new JButton("Deleted Selected Row");
             rowData = new ArrayList<>();
             columnNames = new ArrayList<>();
             columnTypes = new ArrayList<>();
@@ -86,6 +95,10 @@ public class DisplayTablePanel extends JPanel implements IUpdateTable {
          */
         public Class getColumnClass(int c) {
             return getValueAt(0, c).getClass();
+        }
+        
+        public JButton getButton() {
+            return deleteButton;
         }
 
         public int getColumnCount() {
