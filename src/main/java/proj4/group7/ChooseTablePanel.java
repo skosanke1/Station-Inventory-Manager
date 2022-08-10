@@ -11,106 +11,107 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-
-public class ChooseTablePanel extends JPanel
-                             implements ActionListener {
-    private final static String belongsToStr = "belongs_to";
-    private final static String customerStr = "customer";
-    private final static String custSalesStr = "cust_sales";
-    private final static String manStr = "manufacturer";
-    private final static String productStr = "product";
-    private final static String returnItemStr = "return_item";
-    private final static String salesStr = "sales";
-    private final static String salesItemStr = "sales_item";
-    private final static String storeStr = "store";    
+/*
+ * This Component allows us to choose our Tables
+ */
+public class ChooseTablePanel extends JPanel implements ActionListener {
+    private final static String mBelongsToStr = "belongs_to";
+    private final static String mCustomerStr = "customer";
+    private final static String mCustSalesStr = "cust_sales";
+    private final static String mManStr = "manufacturer";
+    private final static String mProductStr = "product";
+    private final static String mReturnItemStr = "return_item";
+    private final static String mSalesStr = "sales";
+    private final static String mSalesItemStr = "sales_item";
+    private final static String mStoreStr = "store";    
     
-    private IUpdateTable updateTable;
+    private IUpdateTableListener updateTableListener;
 
-    public ChooseTablePanel(IUpdateTable updateTable) {
-        this.updateTable = updateTable;
+    public ChooseTablePanel(IUpdateTableListener updateTableListener) {
+        this.updateTableListener = updateTableListener;
         
         //Create the radio buttons.
-        JRadioButton belongsToButton = new JRadioButton(belongsToStr);
-        belongsToButton.setMnemonic(KeyEvent.VK_B);
-        belongsToButton.setActionCommand(belongsToStr);
-        belongsToButton.setSelected(true);
+        JRadioButton lBelongsToButton = new JRadioButton(mBelongsToStr);
+        lBelongsToButton.setMnemonic(KeyEvent.VK_B);
+        lBelongsToButton.setActionCommand(mBelongsToStr);
+        lBelongsToButton.setSelected(true);
 
-        JRadioButton customerButton = new JRadioButton(customerStr);
-        customerButton.setMnemonic(KeyEvent.VK_C);
-        customerButton.setActionCommand(customerStr);
+        JRadioButton lCustomerButton = new JRadioButton(mCustomerStr);
+        lCustomerButton.setMnemonic(KeyEvent.VK_C);
+        lCustomerButton.setActionCommand(mCustomerStr);
 
-        JRadioButton custSalesButton = new JRadioButton(custSalesStr);
-        custSalesButton.setMnemonic(KeyEvent.VK_U);
-        custSalesButton.setActionCommand(custSalesStr);
+        JRadioButton lCustSalesButton = new JRadioButton(mCustSalesStr);
+        lCustSalesButton.setMnemonic(KeyEvent.VK_U);
+        lCustSalesButton.setActionCommand(mCustSalesStr);
 
-        JRadioButton manButton = new JRadioButton(manStr);
-        manButton.setMnemonic(KeyEvent.VK_M);
-        manButton.setActionCommand(manStr);
+        JRadioButton lManButton = new JRadioButton(mManStr);
+        lManButton.setMnemonic(KeyEvent.VK_M);
+        lManButton.setActionCommand(mManStr);
 
-        JRadioButton productButton = new JRadioButton(productStr);
-        productButton.setMnemonic(KeyEvent.VK_P);
-        productButton.setActionCommand(productStr);
+        JRadioButton lProductButton = new JRadioButton(mProductStr);
+        lProductButton.setMnemonic(KeyEvent.VK_P);
+        lProductButton.setActionCommand(mProductStr);
 
-        JRadioButton returnItemButton = new JRadioButton(returnItemStr);
-        returnItemButton.setMnemonic(KeyEvent.VK_R);
-        returnItemButton.setActionCommand(returnItemStr);
+        JRadioButton lReturnItemButton = new JRadioButton(mReturnItemStr);
+        lReturnItemButton.setMnemonic(KeyEvent.VK_R);
+        lReturnItemButton.setActionCommand(mReturnItemStr);
 
-        JRadioButton salesButton = new JRadioButton(salesStr);
-        salesButton.setMnemonic(KeyEvent.VK_S);
-        salesButton.setActionCommand(salesStr);
+        JRadioButton lSalesButton = new JRadioButton(mSalesStr);
+        lSalesButton.setMnemonic(KeyEvent.VK_S);
+        lSalesButton.setActionCommand(mSalesStr);
 
-        JRadioButton salesItemButton = new JRadioButton(salesItemStr);
-        salesItemButton.setMnemonic(KeyEvent.VK_A);
-        salesItemButton.setActionCommand(salesItemStr);
+        JRadioButton lSalesItemButton = new JRadioButton(mSalesItemStr);
+        lSalesItemButton.setMnemonic(KeyEvent.VK_A);
+        lSalesItemButton.setActionCommand(mSalesItemStr);
 
-        JRadioButton storeButton = new JRadioButton(storeStr);
-        storeButton.setMnemonic(KeyEvent.VK_T);
-        storeButton.setActionCommand(storeStr);
+        JRadioButton lStoreButton = new JRadioButton(mStoreStr);
+        lStoreButton.setMnemonic(KeyEvent.VK_T);
+        lStoreButton.setActionCommand(mStoreStr);
 
         //Group the radio buttons.
         ButtonGroup group = new ButtonGroup();
-        group.add(belongsToButton);
-        group.add(customerButton);
-        group.add(custSalesButton);
-        group.add(manButton);
-        group.add(productButton);
-        group.add(returnItemButton);
-        group.add(salesButton);
-        group.add(salesItemButton);
-        group.add(storeButton);
+        group.add(lBelongsToButton);
+        group.add(lCustomerButton);
+        group.add(lCustSalesButton);
+        group.add(lManButton);
+        group.add(lProductButton);
+        group.add(lReturnItemButton);
+        group.add(lSalesButton);
+        group.add(lSalesItemButton);
+        group.add(lStoreButton);
         group.clearSelection();
 
         //Register a listener for the radio buttons.
-        belongsToButton.addActionListener(this);
-        customerButton.addActionListener(this);
-        custSalesButton.addActionListener(this);
-        manButton.addActionListener(this);
-        productButton.addActionListener(this);
-        returnItemButton.addActionListener(this);
-        salesButton.addActionListener(this);
-        salesItemButton.addActionListener(this);
-        storeButton.addActionListener(this);
+        lBelongsToButton.addActionListener(this);
+        lCustomerButton.addActionListener(this);
+        lCustSalesButton.addActionListener(this);
+        lManButton.addActionListener(this);
+        lProductButton.addActionListener(this);
+        lReturnItemButton.addActionListener(this);
+        lSalesButton.addActionListener(this);
+        lSalesItemButton.addActionListener(this);
+        lStoreButton.addActionListener(this);
 
         //Put the radio buttons in a row in a panel.
         JPanel radioPanel = new JPanel(new GridLayout(1, 0));
-        radioPanel.add(belongsToButton);
-        radioPanel.add(customerButton);
-        radioPanel.add(custSalesButton);
-        radioPanel.add(manButton);
-        radioPanel.add(productButton);
-        radioPanel.add(returnItemButton);
-        radioPanel.add(salesButton);
-        radioPanel.add(salesItemButton);
-        radioPanel.add(storeButton);
+        radioPanel.add(lBelongsToButton);
+        radioPanel.add(lCustomerButton);
+        radioPanel.add(lCustSalesButton);
+        radioPanel.add(lManButton);
+        radioPanel.add(lProductButton);
+        radioPanel.add(lReturnItemButton);
+        radioPanel.add(lSalesButton);
+        radioPanel.add(lSalesItemButton);
+        radioPanel.add(lStoreButton);
 
         add(radioPanel, BorderLayout.LINE_START);
-        // add(picture, BorderLayout.CENTER);
         setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(java.awt.Color.black), "Choose Your Table"));
+            BorderFactory.createLineBorder(java.awt.Color.black),
+            "Choose Your Table"));
     }
 
     /** Listens to the radio buttons. */
     public void actionPerformed(ActionEvent e) {
-        updateTable.update(e.getActionCommand());
+        updateTableListener.update(e.getActionCommand());
     }
 }
