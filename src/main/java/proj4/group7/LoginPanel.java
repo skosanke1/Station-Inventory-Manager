@@ -28,60 +28,58 @@ import java.util.concurrent.ExecutionException;
  * Handles the credentials to log into a database
  */
 public class LoginPanel extends JPanel implements ActionListener {
-    private JLabel usernameLabel;
-    private JLabel passwordLabel;
-    private JLabel dbNameLabel;
-    private JLabel driverNameLabel;
+    private JLabel mUsernameLabel;
+    private JLabel mPasswordLabel;
+    private JLabel mDbNameLabel;
+    private JLabel mDriverNameLabel;
     
-    private JTextField usernameField;
-    private JTextField passwordField;
-    private JTextField dbNameField;
-    private JTextField driverNameField;
+    private JTextField mUsernameField;
+    private JTextField mPasswordField;
+    private JTextField mDbNameField;
+    private JTextField mDriverNameField;
     
-    private JButton loginButton;
+    private JButton mLoginButton;    
+    private IDoneListener mDonePanel;    
+    private Connection mConnection = null;
     
-    private IDoneListener donePanel;
-    
-    private Connection conn = null;
-    
-    public LoginPanel(IDoneListener donePanel) {
+    public LoginPanel(IDoneListener pDonePanel) {
         super(new GridLayout(5, 2, 10, 5));
         
-        this.donePanel = donePanel;
+        mDonePanel = pDonePanel;
         
         initComponents();
     }
     
     public void actionPerformed(ActionEvent event) {
         // Remove leading and trailing spaces from all fields
-        usernameField.setText(usernameField.getText().strip());
-        passwordField.setText(passwordField.getText().strip());
-        dbNameField.setText(dbNameField.getText().strip());
-        driverNameField.setText(driverNameField.getText().strip());
+        mUsernameField.setText(mUsernameField.getText().strip());
+        mPasswordField.setText(mPasswordField.getText().strip());
+        mDbNameField.setText(mDbNameField.getText().strip());
+        mDriverNameField.setText(mDriverNameField.getText().strip());
         
         // Check for empty fields
-        if(usernameField.getText().equals("") ||
-           passwordField.getText().equals("") ||
-           dbNameField.getText().equals("") ||
-           driverNameField.getText().equals("")) {
+        if(mUsernameField.getText().equals("") ||
+           mPasswordField.getText().equals("") ||
+           mDbNameField.getText().equals("") ||
+           mDriverNameField.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "No field may be empty!",
             "Empty field error", JOptionPane.ERROR_MESSAGE);
             return;
         }        
         
-        loginButton.setText("Connecting to Database...");
-        loginButton.setEnabled(false);       
+        mLoginButton.setText("Connecting to Database...");
+        mLoginButton.setEnabled(false);       
         
         connect(this);
     }
     
     public void cleanUp() {    
         try {
-            if (conn != null) {
+            if (mConnection != null) {
                 // check if the connection is open, and if so do a rollback
                 // to avoid a transaction context sitting open on the server
-                conn.rollback();
-                conn.close();                    
+                mConnection.rollback();
+                mConnection.close();                    
             }
         } catch (Throwable t2) {
             JOptionPane.showMessageDialog(this, "Oh-oh! Connection leaked!",
@@ -90,22 +88,22 @@ public class LoginPanel extends JPanel implements ActionListener {
     }    
     
     private void connect(java.awt.Component parent) {
-		SwingWorker sw1 = new SwingWorker<Void, Void>() {
+		SwingWorker lSwingWorker = new SwingWorker<Void, Void>() {
             
 			@Override
 			protected Void doInBackground() throws Exception {                
                 try {
                     // Load the JDBC driver
-                    Class.forName(driverNameField.getText());
+                    Class.forName(mDriverNameField.getText());
                     
                     String url = "jdbc:mysql://localhost/" +
-                        dbNameField.getText() +
+                        mDbNameField.getText() +
                         "?autoReconnect=true&useSSL=false";
 
                     // Make a connection
-                    conn = DriverManager.getConnection(url,
-                        usernameField.getText(), passwordField.getText());
-                    conn.setAutoCommit(false);
+                    mConnection = DriverManager.getConnection(url,
+                        mUsernameField.getText(), mPasswordField.getText());
+                    mConnection.setAutoCommit(false);
                 } catch(ClassNotFoundException cnfe) {            
                     JOptionPane.showMessageDialog(parent,
                         "The driver cannot be loaded!", "Driver error",
@@ -120,64 +118,64 @@ public class LoginPanel extends JPanel implements ActionListener {
 			
 			@Override
             protected void done() {        
-                if(conn == null) {
-                    loginButton.setText("Login");
-                    loginButton.setEnabled(true);
+                if(mConnection == null) {
+                    mLoginButton.setText("Login");
+                    mLoginButton.setEnabled(true);
                 } else {
                     JOptionPane.showMessageDialog(parent,
                         "Connection successful.", "Success",
                         JOptionPane.INFORMATION_MESSAGE);
-                    donePanel.done();
+                    mDonePanel.done();
                 }
 			}
 		};
 
 		// Executes the swingworker on worker thread
-		sw1.execute();
+		lSwingWorker.execute();
 	}
 
-    public Connection getConnection() { return conn; }
+    public Connection getConnection() { return mConnection; }
     
     private void initComponents() {        
-        usernameLabel = new JLabel("Username:");
-        usernameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        mUsernameLabel = new JLabel("Username:");
+        mUsernameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         
-        passwordLabel = new JLabel("Password:");
-        passwordLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        mPasswordLabel = new JLabel("Password:");
+        mPasswordLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         
-        dbNameLabel = new JLabel("Database:");
-        dbNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        mDbNameLabel = new JLabel("Database:");
+        mDbNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         
-        driverNameLabel = new JLabel("Driver:");
-        driverNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        mDriverNameLabel = new JLabel("Driver:");
+        mDriverNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         
-        usernameField = new JTextField(20);
-        passwordField = new JTextField(20);
-        dbNameField = new JTextField(20);
-        driverNameField = new JTextField(20);
+        mUsernameField = new JTextField(20);
+        mPasswordField = new JTextField(20);
+        mDbNameField = new JTextField(20);
+        mDriverNameField = new JTextField(20);
         
-        loginButton = new JButton("Login");
-        loginButton.addActionListener(this);
+        mLoginButton = new JButton("Login");
+        mLoginButton.addActionListener(this);
         
-        add(usernameLabel);
-        add(usernameField);
-        add(passwordLabel);
-        add(passwordField);
-        add(dbNameLabel);
-        add(dbNameField);
-        add(driverNameLabel);
-        add(driverNameField);
+        add(mUsernameLabel);
+        add(mUsernameField);
+        add(mPasswordLabel);
+        add(mPasswordField);
+        add(mDbNameLabel);
+        add(mDbNameField);
+        add(mDriverNameLabel);
+        add(mDriverNameField);
         add(new JLabel());
-        add(loginButton);
+        add(mLoginButton);
         
         setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(Color.black), "Login"));
             
             
         /** for debugging remove later **/
-        usernameField.setText("root");
-        passwordField.setText("dragon77");
-        dbNameField.setText("group7db");
-        driverNameField.setText("com.mysql.jdbc.Driver");
+        mUsernameField.setText("root");
+        mPasswordField.setText("dragon77");
+        mDbNameField.setText("group7db");
+        mDriverNameField.setText("com.mysql.jdbc.Driver");
     }
 }
