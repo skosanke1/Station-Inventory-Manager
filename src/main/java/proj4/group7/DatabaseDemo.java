@@ -17,51 +17,50 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 /** 
- * TODO
+ * Mainclass to display the JFrame
  */
 public class DatabaseDemo extends JFrame implements IDoneListener {
     
-    private LoginPanel loginPanel;    
-    private ChooseTablePanel choosePanel;    
-    private DisplayTablePanel dPanel;
+    private LoginPanel mLoginPanel;    
+    private ChooseTablePanel mChoosePanel;    
+    private DisplayTablePanel mDPanel;
 
     public DatabaseDemo() {
-        //Create and set up the window.
-        super("DatabaseDemo");
-        
+        // Create and set up the window.
+        super("DatabaseDemo");        
         
         setLayout(new GridBagLayout());
-        GridBagConstraints loginConstraints = new GridBagConstraints();
-        loginConstraints.fill = GridBagConstraints.HORIZONTAL;
-        loginConstraints.gridx = 0;
-        loginConstraints.gridy = 0;
+        GridBagConstraints lLoginConstraints = new GridBagConstraints();
+        lLoginConstraints.fill = GridBagConstraints.HORIZONTAL;
+        lLoginConstraints.gridx = 0;
+        lLoginConstraints.gridy = 0;
         
-        loginPanel = new LoginPanel(this);
-        add(loginPanel, loginConstraints);
+        mLoginPanel = new LoginPanel(this);
+        add(mLoginPanel, lLoginConstraints);
         
-        GridBagConstraints dPanelConstraints = new GridBagConstraints();
-        dPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-        dPanelConstraints.gridx = 0;
-        dPanelConstraints.gridy = 1;
+        GridBagConstraints lDPanelConstraints = new GridBagConstraints();
+        lDPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+        lDPanelConstraints.gridx = 0;
+        lDPanelConstraints.gridy = 1;
         
-        dPanel = new DisplayTablePanel(loginPanel);
-        add(dPanel, dPanelConstraints);        
-        dPanel.setVisible(false);
+        mDPanel = new DisplayTablePanel(mLoginPanel);
+        add(mDPanel, lDPanelConstraints);        
+        mDPanel.setVisible(false);
         
-        GridBagConstraints chooseConstraints = new GridBagConstraints();
-        chooseConstraints.fill = GridBagConstraints.HORIZONTAL;
-        chooseConstraints.gridx = 0;
-        chooseConstraints.gridy = 0;
+        GridBagConstraints lChooseConstraints = new GridBagConstraints();
+        lChooseConstraints.fill = GridBagConstraints.HORIZONTAL;
+        lChooseConstraints.gridx = 0;
+        lChooseConstraints.gridy = 0;
         
-        choosePanel = new ChooseTablePanel(dPanel);
-        add(choosePanel, chooseConstraints);        
-        choosePanel.setVisible(false);
+        mChoosePanel = new ChooseTablePanel(mDPanel);
+        add(mChoosePanel, lChooseConstraints);        
+        mChoosePanel.setVisible(false);
         
         
         addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e) {
-                loginPanel.cleanUp();
+            public void windowClosing(WindowEvent pWe) {
+                mLoginPanel.cleanUp();
                 System.exit(0);
             }
         });       
@@ -74,16 +73,16 @@ public class DatabaseDemo extends JFrame implements IDoneListener {
     }
     
     public void done() {
-        loginPanel.setVisible(false);
-        choosePanel.setVisible(true);
-        dPanel.setVisible(true);
+        mLoginPanel.setVisible(false);
+        mChoosePanel.setVisible(true);
+        mDPanel.setVisible(true);
         pack();
         setLocationRelativeTo(null);
     }
 
-    public static void main(String[] args) {
-        //Schedule a job for the event-dispatching thread:
-        //creating and showing this application's GUI.
+    public static void main(String[] pArgs) {
+        // Schedule a job for the event-dispatching thread:
+        // creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 new DatabaseDemo();
