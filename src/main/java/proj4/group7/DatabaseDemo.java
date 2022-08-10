@@ -56,6 +56,8 @@ public class DatabaseDemo extends JFrame implements IDoneListener {
         add(mChoosePanel, lChooseConstraints);        
         mChoosePanel.setVisible(false);
         
+        getRootPane().setDefaultButton(mLoginPanel.getDefaultButton());
+        
         
         addWindowListener(new WindowAdapter() {
             @Override
