@@ -39,4 +39,5 @@ To insert a tuple in a row, simply go the last empty row, and edit the cells. On
 Simply edit a cell to update. For simplicity, I disabled editing of the Primary Key cells. To simulate such effect, simply delete the tuple and re-enter the values on the last row. Note that deleting a tuple might cause others to be deleted in other tables because of cascading.
 
 **Deleting**
+
 Choose a row and then click on the delete button
