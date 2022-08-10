@@ -136,6 +136,10 @@ public class LoginPanel extends JPanel implements ActionListener {
 
     public Connection getConnection() { return mConnection; }
     
+    public JButton getDefaultButton() {        
+        return mLoginButton;
+    }
+    
     private void initComponents() {        
         mUsernameLabel = new JLabel("Username:");
         mUsernameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
