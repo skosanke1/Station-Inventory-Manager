@@ -36,65 +36,63 @@ import java.awt.event.ActionListener;
  * TODO
  */
 public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
-    private String tableName;
-    private MyTableModel tableModel;
+    private String mTableName;
+    private MyTableModel mTableModel;
     private LoginPanel mLoginPanel;
-    private JTable table;
+    private JTable mTable;
 
-    public DisplayTablePanel(LoginPanel mLoginPanel) {
-       // super(new GridLayout(0, 1));
-    
-        this.mLoginPanel = mLoginPanel;
-        tableModel = new MyTableModel();
+    public DisplayTablePanel(LoginPanel pLoginPanel) {    
+        mLoginPanel = pLoginPanel;
+        mTableModel = new MyTableModel();
 
-        table = new JTable(tableModel);
-        table.setFillsViewportHeight(true);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);        
+        mTable = new JTable(mTableModel);
+        mTable.setFillsViewportHeight(true);
+        mTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);        
 
-        //Create the scroll pane and add the table to it.
-        JScrollPane scrollPane = new JScrollPane(table);
+        //Create the scroll pane and add the mTable to it.
+        JScrollPane lScrollPane = new JScrollPane(mTable);
 
         //Add the scroll pane to this panel.
-        add(scrollPane);
-        add(tableModel.getButton());
+        add(lScrollPane);
+        add(mTableModel.getButton());
     }
     
     public void update(String name) {
-        tableName = name;
-        tableModel.load(tableName);
-        tableModel.fireTableStructureChanged();
+        mTableName = name;
+        mTableModel.load(mTableName);
+        mTableModel.fireTableStructureChanged();
     }
 
     class MyTableModel extends AbstractTableModel implements ActionListener {        
-        private ArrayList<Object> rowData;
-        private ArrayList<String> columnNames;
-        private ArrayList<Integer> columnTypes;
-        private ArrayList<String> columnTypeNames;
+        private ArrayList<Object> mRowData;
+        private ArrayList<String> mColumnNames;
+        private ArrayList<Integer> mColumnTypes;
+        private ArrayList<String> mColumnTypeNames;
         private int mNumRows;
         private String mPreparedString;
         private String mErrorMsg;
         
-        private JButton deleteButton;
+        private JButton mDeleteButton;
         
         public MyTableModel() {
-            deleteButton = new JButton("Deleted Selected Row");
-            deleteButton.addActionListener(this);
-            rowData = new ArrayList<>();
-            columnNames = new ArrayList<>();
-            columnTypes = new ArrayList<>();
-            columnTypeNames = new ArrayList<>();
+            mDeleteButton = new JButton("Deleted Selected Row");
+            mDeleteButton.addActionListener(this);
+            mRowData = new ArrayList<>();
+            mColumnNames = new ArrayList<>();
+            mColumnTypes = new ArrayList<>();
+            mColumnTypeNames = new ArrayList<>();
         }
         
         public void actionPerformed(ActionEvent event) {
-            int selectedRow = table.getSelectedRow();
-            if(selectedRow == -1) {
+            int lSelectedRow = mTable.getSelectedRow();
+            if(lSelectedRow == -1) {
                 JOptionPane.showMessageDialog(DisplayTablePanel.this,
                     "You must select a row!", "No row selected",
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }            
             
-            if(selectedRow == mNumRows - 1) {
+            if(lSelectedRow == mNumRows - 1) {
                 JOptionPane.showMessageDialog(DisplayTablePanel.this,
                     "Can't delete an empty row", "Empty row error",
                         JOptionPane.ERROR_MESSAGE);
@@ -104,7 +102,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
             try {                   
                 String lDeleteRowStr = String.format(
                     "DELETE FROM %s WHERE %s",
-                    tableName, whereClause(selectedRow));
+                    mTableName, whereClause(lSelectedRow));
                 Statement lStmt =
                     mLoginPanel.getConnection().createStatement();
                 
@@ -123,12 +121,12 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
                JOptionPane.ERROR_MESSAGE);
             }
             
-            update(tableName);
+            update(mTableName);
         }
         
         private void addExtraRow() {
-            for (int col = 0; col < columnNames.size(); ++col)
-                rowData.add("");
+            for (int col = 0; col < mColumnNames.size(); ++col)
+                mRowData.add("");
             
             ++mNumRows;
         }
@@ -139,16 +137,16 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
          * then the last column would contain text ("true"/"false"),
          * rather than a check box.
          */
-        public Class getColumnClass(int c) {
-            return getValueAt(0, c).getClass();
+        public Class getColumnClass(int pCol) {
+            return getValueAt(0, pCol).getClass();
         }
         
         public JButton getButton() {
-            return deleteButton;
+            return mDeleteButton;
         }
 
         public int getColumnCount() {
-            return columnNames.size();
+            return mColumnNames.size();
         }
 
         public int getRowCount() {
@@ -156,49 +154,49 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
         }
 
         public String getColumnName(int col) {
-            return columnNames.get(col);
+            return mColumnNames.get(col);
         }
 
         public Object getValueAt(int row, int col) {
-            return rowData.get(row * columnNames.size() + col);
+            return mRowData.get(row * mColumnNames.size() + col);
         }
         
         public void load(String name)  {
             mNumRows = 0;
-            rowData.clear();
-            columnNames.clear();
-            columnTypes.clear();
-            columnTypeNames.clear();
+            mRowData.clear();
+            mColumnNames.clear();
+            mColumnTypes.clear();
+            mColumnTypeNames.clear();
             
             try {
-                Statement stmt = mLoginPanel.getConnection().createStatement();
-                ResultSet rs = stmt.executeQuery("Select * from " + name);
-                ResultSetMetaData metaData = rs.getMetaData();
+                Statement lStmt = mLoginPanel.getConnection().createStatement();
+                ResultSet lRs = lStmt.executeQuery("Select * from " + name);
+                ResultSetMetaData lMetaData = lRs.getMetaData();
                 
-                int numColumns = metaData.getColumnCount();
-                for(int i = 1; i <= numColumns; ++i) {
-                   columnNames.add(metaData.getColumnLabel(i));
-                   columnTypes.add(metaData.getColumnType(i));
-                   columnTypeNames.add(metaData.getColumnTypeName(i));
+                int lNumColumns = lMetaData.getColumnCount();
+                for(int i = 1; i <= lNumColumns; ++i) {
+                   mColumnNames.add(lMetaData.getColumnLabel(i));
+                   mColumnTypes.add(lMetaData.getColumnType(i));
+                   mColumnTypeNames.add(lMetaData.getColumnTypeName(i));
                 }
                 
-                while (rs.next()) {
+                while (lRs.next()) {
                     ++mNumRows;
                     
-                    for (int i = 1; i <= numColumns; ++i)
-                        rowData.add(rs.getObject(i).toString());
+                    for (int i = 1; i <= lNumColumns; ++i)
+                        mRowData.add(lRs.getObject(i).toString());
                 }
                 
-                if (rs != null) rs.close();
-                stmt.close();
+                if (lRs != null) lRs.close();
+                lStmt.close();
                 
                 // Add empty row for possible row insertion
                 /***************************************************/
                 addExtraRow();
                 /***************************************************/
-            } catch(java.sql.SQLException se) {                                              
+            } catch(java.sql.SQLException pSE) {                                              
                 JOptionPane.showMessageDialog(DisplayTablePanel.this,
-                se.getMessage(), "SQL Error",
+                pSE.getMessage(), "SQL Error",
                 JOptionPane.ERROR_MESSAGE);
             }
             
@@ -208,19 +206,19 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
         /*
          * Make every cell editable
          */
-        public boolean isCellEditable(int row, int col) {
-            if(row == mNumRows - 1) return true;
+        public boolean isCellEditable(int pRow, int pCol) {
+            if(pRow == mNumRows - 1) return true;
             
-            int border = 1;
-            switch(tableName) {
+            int lBorder = 1;
+            switch(mTableName) {
                 case "belongs_to":
                 case "sales_item":
                 case "return_item":
-                    border = 2;
+                    lBorder = 2;
                     
             }
             
-            if(col >= border) return true;
+            if(pCol >= lBorder) return true;
             
             JOptionPane.showMessageDialog(DisplayTablePanel.this,
                 "Can't edit Primary Key column", "Edit PK Error",
@@ -249,23 +247,23 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
             if(!lCellString.equals("") &&
                !isCellValid(pRow, pCol, lCellString)) {
                 JOptionPane.showMessageDialog(DisplayTablePanel.this,
-                "This cell must be of Type: " + columnTypeNames.get(pCol) +
+                "This cell must be of Type: " + mColumnTypeNames.get(pCol) +
                     mErrorMsg, "Wrong Type", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
             String lOldValue = getValueAt(pRow, pCol).toString();
-            rowData.set(pRow * columnNames.size() + pCol, lCellString);
+            mRowData.set(pRow * mColumnNames.size() + pCol, lCellString);
             
             // Inserting at last row
             if(pRow == mNumRows - 1) {
                 if(isLastRowFull()) {
                     insertTuple();
-                    update(tableName);
+                    update(mTableName);
                 }
             } else if(!lCellString.equals(lOldValue)) {
                 updateTuple(pRow, pCol, lCellString);
-                    update(tableName);
+                    update(mTableName);
             }
         }
         
@@ -273,10 +271,10 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
             StringBuilder lPreparedString = new StringBuilder(50);
 
             lPreparedString.append("INSERT INTO ");
-            lPreparedString.append(tableName);
+            lPreparedString.append(mTableName);
             lPreparedString.append(" VALUES (?");
             
-            for(int col = 1; col < columnNames.size(); ++col) {
+            for(int col = 1; col < mColumnNames.size(); ++col) {
                 lPreparedString.append(", ?");
             }
    
@@ -287,7 +285,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
         
         private boolean isCellValid(int pRow, int pCol, String pCellString) {
             mErrorMsg = "";
-            switch(columnTypes.get(pCol)) {
+            switch(mColumnTypes.get(pCol)) {
                 case Types.INTEGER:
                     try {
                         if(Integer.parseInt(pCellString) <= 0) {
@@ -326,7 +324,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
                 default:
                     // Code should not reach here because we have
                     // handled all types in our database
-                    System.out.println("TODO: " + columnTypeNames.get(pCol));
+                    System.out.println("TODO: " + mColumnTypeNames.get(pCol));
             }
             
             return true;
@@ -338,11 +336,11 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
                     mLoginPanel.getConnection().prepareStatement(
                         mPreparedString);                    
                            
-                for(int col = 0; col < columnTypes.size(); ++col) {
+                for(int col = 0; col < mColumnTypes.size(); ++col) {
                     String lCellString = getValueAt(
                         mNumRows - 1, col).toString();
                         
-                    switch(columnTypes.get(col)) {
+                    switch(mColumnTypes.get(col)) {
                         case Types.INTEGER:
                             lPs.setInt(col + 1, Integer.parseInt(lCellString));
                         break;
@@ -367,7 +365,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
                             // Code should not reach here because we have
                             // handled all types in our database
                             System.out.println("TODOx: " +
-                                columnTypeNames.get(col));
+                                mColumnTypeNames.get(col));
                             return;
                     }
                 }
@@ -389,7 +387,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
         }
         
         private boolean isLastRowFull() {            
-            for(int col = 0; col < columnNames.size(); ++col) {
+            for(int col = 0; col < mColumnNames.size(); ++col) {
                 if(getValueAt(mNumRows - 1, col).equals(""))
                     return false;
             }
@@ -400,12 +398,12 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
         private void updateTuple(int pRow, int pCol, String pNewString) {
             try {                   
                 String lUpdateStr = String.format(
-                    "UPDATE %s SET %s=? WHERE %s", tableName,
-                    columnNames.get(pCol), whereClause(pRow));
+                    "UPDATE %s SET %s=? WHERE %s", mTableName,
+                    mColumnNames.get(pCol), whereClause(pRow));
                 PreparedStatement lPs =
                     mLoginPanel.getConnection().prepareStatement(lUpdateStr);              
                         
-                switch(columnTypes.get(pCol)) {
+                switch(mColumnTypes.get(pCol)) {
                     case Types.INTEGER:
                         lPs.setInt(1, Integer.parseInt(pNewString));
                     break;
@@ -430,7 +428,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
                         // Code should not reach here because we have
                         // handled all types in our database
                         System.out.println("TODO: " +
-                            columnTypeNames.get(pCol));
+                            mColumnTypeNames.get(pCol));
                         return;
                 }
                 
@@ -451,7 +449,7 @@ public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
         }
         
         public String whereClause(int pRow) {
-            switch(tableName) {
+            switch(mTableName) {
                 case "belongs_to":
                     return String.format("StoreID=%s AND ProductID=%s",
                             getValueAt(pRow, 0), getValueAt(pRow, 1));
