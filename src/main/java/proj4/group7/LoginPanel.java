@@ -24,6 +24,9 @@ import java.sql.SQLException;
 
 import java.util.concurrent.ExecutionException;
 
+/*
+ * Handles the credentials to log into a database
+ */
 public class LoginPanel extends JPanel implements ActionListener {
     private JLabel usernameLabel;
     private JLabel passwordLabel;
@@ -37,17 +40,14 @@ public class LoginPanel extends JPanel implements ActionListener {
     
     private JButton loginButton;
     
-    private IShowPanel sPanel;
+    private IDoneListener donePanel;
     
-    private ResultSet rs = null; // not using
-    private PreparedStatement pStmt = null; // not using
-    private Statement stmt = null; // not using
     private Connection conn = null;
     
-    public LoginPanel(IShowPanel sPanel) {
+    public LoginPanel(IDoneListener donePanel) {
         super(new GridLayout(5, 2, 10, 5));
         
-        this.sPanel = sPanel;
+        this.donePanel = donePanel;
         
         initComponents();
     }
@@ -75,24 +75,17 @@ public class LoginPanel extends JPanel implements ActionListener {
         connect(this);
     }
     
-    public void cleanUp() {
-        try {
-            if (rs != null)	rs.close();
-            if (stmt != null) stmt.close();                
-            if (pStmt != null)	pStmt.close();
-        } catch (Throwable t1) {
-            JOptionPane.showMessageDialog(this, "A problem closing db resources!",
-            "Connection error", JOptionPane.ERROR_MESSAGE);
-        }
-    
+    public void cleanUp() {    
         try {
             if (conn != null) {
-                // DON'T FORGET TO CHECK FOR ROLLBACK
+                // check if the connection is open, and if so do a rollback
+                // to avoid a transaction context sitting open on the server
+                conn.rollback();
                 conn.close();                    
             }
         } catch (Throwable t2) {
             JOptionPane.showMessageDialog(this, "Oh-oh! Connection leaked!",
-            "Connection error", JOptionPane.ERROR_MESSAGE);
+                "Connection error", JOptionPane.ERROR_MESSAGE);
         }
     }    
     
@@ -105,22 +98,22 @@ public class LoginPanel extends JPanel implements ActionListener {
                     // Load the JDBC driver
                     Class.forName(driverNameField.getText());
                     
-                    String url = "jdbc:mysql://localhost/" + dbNameField.getText() +
+                    String url = "jdbc:mysql://localhost/" +
+                        dbNameField.getText() +
                         "?autoReconnect=true&useSSL=false";
 
                     // Make a connection
-                    conn = DriverManager.getConnection(url, usernameField.getText(),
-                        passwordField.getText());
+                    conn = DriverManager.getConnection(url,
+                        usernameField.getText(), passwordField.getText());
                     conn.setAutoCommit(false);
                 } catch(ClassNotFoundException cnfe) {            
-                    JOptionPane.showMessageDialog(parent, "The driver cannot be loaded!",
-                    "Driver error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(parent,
+                        "The driver cannot be loaded!", "Driver error",
+                        JOptionPane.ERROR_MESSAGE);
                 } catch(SQLException se) {            
-                    JOptionPane.showMessageDialog(parent, "Couldn't connect: please check your credentials.",
+                    JOptionPane.showMessageDialog(parent, se.getMessage(),
                     "SQL error", JOptionPane.ERROR_MESSAGE);
-                    // System.err.println(se.getMessage());
-                    // TODO: se.printStackTrace();
-                } // finally { cleanUp(); }
+                } 
                 
                 return null;
 			}
@@ -131,8 +124,10 @@ public class LoginPanel extends JPanel implements ActionListener {
                     loginButton.setText("Login");
                     loginButton.setEnabled(true);
                 } else {
-                    JOptionPane.showMessageDialog(parent, "Connection successful.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    sPanel.done();
+                    JOptionPane.showMessageDialog(parent,
+                        "Connection successful.", "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+                    donePanel.done();
                 }
 			}
 		};

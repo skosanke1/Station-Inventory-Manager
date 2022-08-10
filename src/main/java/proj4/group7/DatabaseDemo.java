@@ -19,7 +19,7 @@ import java.awt.event.WindowEvent;
 /** 
  * TODO
  */
-public class DatabaseDemo extends JFrame implements IShowPanel {
+public class DatabaseDemo extends JFrame implements IDoneListener {
     
     private LoginPanel loginPanel;    
     private ChooseTablePanel choosePanel;    

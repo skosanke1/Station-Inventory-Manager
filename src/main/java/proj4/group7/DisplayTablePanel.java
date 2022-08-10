@@ -35,7 +35,7 @@ import java.awt.event.ActionListener;
 /** 
  * TODO
  */
-public class DisplayTablePanel extends JPanel implements IUpdateTable {    
+public class DisplayTablePanel extends JPanel implements IUpdateTableListener {
     private String tableName;
     private MyTableModel tableModel;
     private LoginPanel mLoginPanel;
