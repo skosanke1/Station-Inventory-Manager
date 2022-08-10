@@ -170,12 +170,5 @@ public class LoginPanel extends JPanel implements ActionListener {
         
         setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(Color.black), "Login"));
-            
-            
-        /** for debugging remove later **/
-        mUsernameField.setText("root");
-        mPasswordField.setText("dragon77");
-        mDbNameField.setText("group7db");
-        mDriverNameField.setText("com.mysql.jdbc.Driver");
     }
 }
